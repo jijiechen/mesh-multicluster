@@ -3,7 +3,6 @@ kind: IstioOperator
 spec:
   meshConfig:
     accessLogFile: /dev/stdout
-  components:
   values:
     global:
       meshExpansion:
