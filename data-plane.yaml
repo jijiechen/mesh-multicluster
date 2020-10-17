@@ -3,6 +3,13 @@ kind: IstioOperator
 spec:
   meshConfig:
     accessLogFile: /dev/stdout
+  components: 
+    base: 
+      enabled: true 
+    istiodRemote: 
+      enabled: true 
+    pilot: 
+      enabled: false
   values:
     global:
       multiCluster:

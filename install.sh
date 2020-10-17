@@ -19,12 +19,15 @@ DATA_PLAINE_NAMES=(${DATA_PLAINE_CTXS//,/ })
 rm -rf ./.install && mkdir ./.install
 cp ./control-plane.yaml ./.install/control-plane.yaml
 
+kubectl create namespace $ISTIO_NAMESPACE  --context=ctx-$CONTROL_PLANE_NAME || true
 for DATA_PLANE in "${DATA_PLAINE_NAMES[@]}" ; do
-    kubectl create namespace $ISTIO_NAMESPACE || true
     sed "s/DATA_PLANE_NAME/$DATA_PLANE/" ./data-plane-fragment.yaml >> ./.install/control-plane.yaml
 done
 istioctl install -f ./.install/control-plane.yaml -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_NAME}
 kubectl apply -f ./multicluster-aware-gateway.yaml -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_NAME}
+
+
+
 
 ISTIOD_REMOTE_EP=
 until [ ! -z "$ISTIOD_REMOTE_EP" ] ; do
@@ -34,10 +37,13 @@ until [ ! -z "$ISTIOD_REMOTE_EP" ] ; do
 done
 
 for DATA_PLANE in "${DATA_PLAINE_NAMES[@]}" ; do
-    sed "s/ISTIOD_REMOTE_EP/$ISTIOD_REMOTE_EP/" ./data-plane.yaml | sed "s/DATA_PLANE_NAME/$DATA_PLANE/" > ./.install/data-plne-$DATA_PLANE.yaml
+    echo "Installing cluster $DATA_PLANE..."
+    sed "s/ISTIOD_REMOTE_EP/$ISTIOD_REMOTE_EP/" ./data-plane.yaml | sed "s/DATA_PLANE_NAME/$DATA_PLANE/" > ./.install/data-plane-$DATA_PLANE.yaml
+    kubectl create namespace $ISTIO_NAMESPACE --context=ctx-$DATA_PLANE || true
 
+    sleep 2
     ./install-helper.sh $DATA_PLANE $CONTROL_PLANE_NAME $ISTIO_NAMESPACE &
-    istioctl install -f ./.install/data-plne-$DATA_PLANE.yaml -n $ISTIO_NAMESPACE --context=ctx-$DATA_PLANE
+    istioctl install -f ./.install/data-plane-$DATA_PLANE.yaml -n $ISTIO_NAMESPACE --context=ctx-$DATA_PLANE
     kubectl apply -f ./multicluster-aware-gateway.yaml -n $ISTIO_NAMESPACE --context=ctx-${DATA_PLANE} 
 done
 
