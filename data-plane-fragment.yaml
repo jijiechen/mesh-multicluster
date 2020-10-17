@@ -1,0 +1,6 @@
+        DATA_PLANE_NAME-net:
+          endpoints:
+          - fromRegistry: DATA_PLANE_NAME
+          gateways:
+          - registry_service_name: istio-ingressgateway.istio-system.svc.cluster.local
+            port: 443

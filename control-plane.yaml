@@ -1,0 +1,21 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  meshConfig:
+    accessLogFile: /dev/stdout
+  components:
+    base:
+      enabled: true
+    ingressGateways:
+      - enabled: true
+    pilot:
+      enabled: true
+  values:
+    global:
+      meshExpansion:
+        enabled: true
+      multiCluster:
+        clusterName: control
+      network: control-net
+
+      meshNetworks:

@@ -1,0 +1,21 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+spec:
+  meshConfig:
+    accessLogFile: /dev/stdout
+  components: 
+    base: 
+      enabled: false
+    ingressGateways: 
+    - enabled: true 
+    istiodRemote: 
+      enabled: true 
+    pilot: 
+      enabled: false
+  values:
+    global:
+      multiCluster:
+        clusterName: DATA_PLANE_NAME
+      network: DATA_PLANE_NAME-net
+
+      remotePilotAddress: ISTIOD_REMOTE_EP
