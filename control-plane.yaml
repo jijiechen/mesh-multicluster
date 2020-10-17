@@ -4,18 +4,21 @@ spec:
   meshConfig:
     accessLogFile: /dev/stdout
   components:
-    base:
-      enabled: true
-    ingressGateways:
-      - enabled: true
-    pilot:
-      enabled: true
   values:
     global:
       meshExpansion:
         enabled: true
       multiCluster:
+        enabled: true
         clusterName: control
       network: control-net
 
       meshNetworks:
+        control-net:
+          endpoints:
+          - fromRegistry: control
+          gateways:
+          - registry_service_name: istio-ingressgateway.istio-system.svc.cluster.local
+            port: 443
+
+# don't put any actual value after this line

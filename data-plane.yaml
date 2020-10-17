@@ -3,18 +3,10 @@ kind: IstioOperator
 spec:
   meshConfig:
     accessLogFile: /dev/stdout
-  components: 
-    base: 
-      enabled: false
-    ingressGateways: 
-    - enabled: true 
-    istiodRemote: 
-      enabled: true 
-    pilot: 
-      enabled: false
   values:
     global:
       multiCluster:
+        enabled: true
         clusterName: DATA_PLANE_NAME
       network: DATA_PLANE_NAME-net
 

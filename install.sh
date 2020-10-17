@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+set -x 
 
 # prepare config wuth 3 contexts:
     # control
@@ -9,35 +11,36 @@
 CONTROL_PLANE_CTX=$1
 DATA_PLAINE_CTXS=$2
 
+ISTIO_NAMESPACE=istio-system
+DATA_PLAINE_NAMES=(${DATA_PLAINE_CTXS//,/ })
+
 
 rm -rf ./.install && mkdir ./.install
 cp ./control-plane.yaml ./.install/control-plane.yaml
 
-DATA_PLAINE_NAMES=(${DATA_PLAINE_CTXS//,/ })
 for DATA_PLANE in "${DATA_PLAINE_NAMES[@]}" ; do
     sed "s/DATA_PLANE_NAME/$DATA_PLANE/" ./data-plane-fragment.yaml >> ./.install/control-plane.yaml
 done
+istioctl install -f ./.install/control-plane.yaml -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_CTX}
+kubectl apply -f ./multicluster-aware-gateway.yaml -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_CTX}
 
-istioctl manifest install ./.install/control-plane.yaml --context=${CONTROL_PLANE_CTX}
-kubectl rollout status deploy/-ingressgateway --context=${CONTROL_PLANE_CTX}
-kubectl apply -f gateway.yaml --context=${CONTROL_PLANE_CTX}
-ISTIOD_REMOTE_EP=$(kubectl get svc -ingressgateway -n -system --context=${CONTROL_PLANE_CTX} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+ISTIOD_REMOTE_EP=
+until [ ! -z "$ISTIOD_REMOTE_EP" ] ; do
+    echo "Trying to get a public IP for ingressgateway at ctx-${CONTROL_PLANE_CTX}..."
+    ISTIOD_REMOTE_EP=$(kubectl get svc istio-ingressgateway -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_CTX} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    sleep 1.5;
+done
 
 for DATA_PLANE in "${DATA_PLAINE_NAMES[@]}" ; do
     sed "s/ISTIOD_REMOTE_EP/$ISTIOD_REMOTE_EP/" ./data-plane.yaml | sed "s/DATA_PLANE_NAME/$DATA_PLANE/" > ./.install/data-plne-$DATA_PLANE.yaml
 
-    istioctl manifest install ./.install/data-plne-$DATA_PLANE.yaml --context=${DATA_PLANE}
-    kubectl rollout status deploy/-ingressgateway --context=${DATA_PLANE}
+    kubectl apply -f ./.install/control-plane-ca-cm.yaml -n $ISTIO_NAMESPACE --context=ctx-${DATA_PLANE}
+    istioctl install -f ./.install/data-plne-$DATA_PLANE.yaml -n $ISTIO_NAMESPACE --context=ctx-${DATA_PLANE}
     
-    kubectl apply -f gateway.yaml --context=${DATA_PLANE}
-    istioctl x create-remote-secret --name ${DATA_PLANE} --context=${DATA_PLANE} | \
-        kubectl apply -f - --context=${CONTROL_PLANE_CTX}
+    kubectl apply -f ./multicluster-aware-gateway.yaml -n $ISTIO_NAMESPACE --context=ctx-${DATA_PLANE} 
+    istioctl x create-remote-secret --name ${DATA_PLANE} -n $ISTIO_NAMESPACE --context=ctx-${DATA_PLANE} | \
+        kubectl apply -n $ISTIO_NAMESPACE --context=ctx-${CONTROL_PLANE_CTX} -f -
 done
 
 
-
-
-
-
-
-
+ 
