@@ -22,7 +22,3 @@ spec:
 
       centralIstiod: true
       remotePilotAddress: ISTIOD_REMOTE_EP
-    istiodRemote:
-      injectionURL: https://ISTIOD_REMOTE_EP:15017/inject
-    base:
-      validationURL: https://ISTIOD_REMOTE_EP:15017/validate

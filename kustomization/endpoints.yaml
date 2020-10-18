@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: istiod
+subsets:
+- ports:
+  - port: 15017
+    name: tcp-istiowebhook
+    protocol: TCP
