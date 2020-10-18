@@ -7,9 +7,12 @@ spec:
     base: 
       enabled: true 
     istiodRemote: 
-      enabled: true 
-    pilot: 
+      enabled: true
+    pilot:
       enabled: false
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
   values:
     global:
       multiCluster:
@@ -17,4 +20,9 @@ spec:
         clusterName: DATA_PLANE_NAME
       network: DATA_PLANE_NAME-net
 
+      centralIstiod: true
       remotePilotAddress: ISTIOD_REMOTE_EP
+    istiodRemote:
+      injectionURL: https://ISTIOD_REMOTE_EP:15017/inject
+    base:
+      validationURL: https://ISTIOD_REMOTE_EP:15017/validate

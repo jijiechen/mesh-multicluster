@@ -2,6 +2,8 @@
 
 # correctly rename the config files
 # $ ./normalize-kubeconfig.sh control.config
+# $ ./normalize-kubeconfig.sh data-1.config
+# $ ./normalize-kubeconfig.sh data-2.config
 # $ export KUBECONFIG=cfg1:cfg2:cfg3
 # $ kubectl config view --flatten > merged.config
 

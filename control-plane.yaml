@@ -1,8 +1,35 @@
+# https://github.com/istio/istio/blob/master/manifests/charts/global.yaml
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 spec:
   meshConfig:
     accessLogFile: /dev/stdout
+  components:
+    base: 
+      enabled: true 
+    pilot:
+      enabled: true
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
+        k8s:
+          service:
+            ports:
+              - port: 15021
+                targetPort: 15021
+                name: status-port
+              - port: 80
+                targetPort: 8080
+                name: http2
+              - port: 443
+                targetPort: 8443
+                name: https
+              - port: 15443
+                targetPort: 15443
+                name: tls
+              - port: 15017
+                targetPort: 15017
+                name: tcp-istiodwebhook
   values:
     global:
       meshExpansion:
@@ -12,6 +39,7 @@ spec:
         clusterName: control
       network: control-net
 
+      centralIstiod: true
       meshNetworks:
         control-net:
           endpoints:
