@@ -32,6 +32,7 @@ spec:
                 name: tcp-istiodwebhook
   values:
     global:
+      jwtPolicy: first-party-jwt
       meshExpansion:
         enabled: true
       multiCluster:

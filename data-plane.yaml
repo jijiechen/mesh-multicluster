@@ -15,6 +15,7 @@ spec:
         enabled: true
   values:
     global:
+      jwtPolicy: first-party-jwt
       multiCluster:
         enabled: true
         clusterName: DATA_PLANE_NAME

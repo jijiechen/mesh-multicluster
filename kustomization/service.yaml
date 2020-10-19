@@ -1,13 +1,14 @@
 apiVersion: v1
-kind: Endpoints
+kind: Service
 metadata:
   name: istiod
   namespace: ISTIO_NAMESPACE
-subsets:
-- addresses: 
-  - ip: ISTIOD_REMOTE_EP
+spec:
+  clusterIP: None
   ports:
   - name: tcp-istiod
     port: 15012
+    targetPort: 15012
   - name: tcp-istiowebhook
     port: 15017
+    targetPort: 15017

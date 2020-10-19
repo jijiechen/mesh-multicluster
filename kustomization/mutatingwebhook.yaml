@@ -1,10 +1,11 @@
-apiVersion: admissionregistration.k8s.io/v1
+apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
   name: istio-sidecar-injector
 webhooks:
-- clientConfig:
-    service:
-      name: istiod
-      path: /inject/cluster/DATA_PLANE_NAME/net/DATA_PLANE_NAME-net
-      port: 15017
+  - name: sidecar-injector.istio.io
+    clientConfig:
+      service:
+        name: istiod
+        path: /inject/cluster/DATA_PLANE_NAME/net/DATA_PLANE_NAME-net
+        port: 15017

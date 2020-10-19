@@ -1,1 +1,6 @@
 .install/
+.data-plane-pre.yaml
+.data-plane-post.yaml
+.mutatingwebhook.yaml
+.endpoints.yaml
+.service.yaml

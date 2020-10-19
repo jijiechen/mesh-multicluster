@@ -1,0 +1,10 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: istiod-istio-system
+webhooks:
+- name: validation.istio.io
+  clientConfig:
+    service:
+      name: istiod
+      port: 15017
